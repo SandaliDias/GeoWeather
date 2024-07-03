@@ -4,7 +4,7 @@ const cors = require("cors");
 require('dotenv').config()
 
 const app = express();
-const PORT = 8010|| 5000;
+const PORT = 8010;
 
 //Midlleware
 app.use(cors());

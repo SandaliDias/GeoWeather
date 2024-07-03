@@ -1,7 +1,6 @@
-const route = require("express").Router();
+const router = require("express").Router();
 const axios = require("axios");
 const Weather = require("../models/Weather.model.js");
-const { Router } = require("express");
 
 //Fetch data from openWeatherMap API
 const fetchWeatherData = async(lat,long) => {
