@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet';
+import { useParams, Link } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
 
@@ -26,10 +27,16 @@ function LocationMarker({ onLocationSelect }) {
   return null;
 }
 
-
 export default function Home() {
-    const [location, setLocation] = useState(null);
+
+  const { userId } = useParams();
+
+  const [prediction, setPrediction] = useState(null);
+  const [date, setDate] = useState('');
+  const [location, setLocation] = useState(null);
   const [weather, setWeather] = useState(null);
+  const [city, setCity] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   const handleLocationSelect = async (latlng) => {
     setLocation(latlng);
@@ -43,10 +50,68 @@ export default function Home() {
     }
   };
 
+  const handleCitySearch = async () => {
+    try {
+      const response = await axios.get(`https://geocoding-api.open-meteo.com/v1/search`, {
+        params: {
+          name: city,
+          count: 1,
+          language: 'en',
+          format: 'json'
+        }
+      });
+      console.log("City search results:", response.data); // Debugging information
+      if (response.data.results && response.data.results.length > 0) {
+        const { latitude, longitude } = response.data.results[0];
+        handleLocationSelect({ lat: latitude, lng: longitude });
+      } else {
+        alert('City not found');
+      }
+    } catch (error) {
+      console.error('Error searching city:', error);
+    }
+  };
+
   const SetMapCenter = ({ latlng }) => {
     const map = useMap();
     map.setView(latlng, map.getZoom());
     return null;
+  };
+
+  // Weather prediction
+  const fetchPrediction = async () => {
+    if (!date) {
+      alert('Please select a date');
+      return;
+    }
+
+    try {
+      const response = await axios.get('http://127.0.0.1:8010/predict', {
+        params: { date },
+      });
+      setPrediction(response.data.predicted_temp.toFixed(2));
+    } catch (error) {
+      console.error('Error fetching prediction:', error);
+    }
+  };
+
+  const addToFavorites = async () => {
+    if (!weather || !location) {
+      alert('Please select a location and fetch the weather data first.');
+      return;
+    }
+
+    try {
+      await axios.post('http://localhost:8010/favorites/create', {
+        city: weather.name,
+        lat: location.lat,
+        lng: location.lng,
+        userId, // Pass the user's ID
+      });
+      alert('City added to favorites');
+    } catch (error) {
+      console.error('Error adding to favorites:', error);
+    }
   };
 
   return (
@@ -55,7 +120,7 @@ export default function Home() {
         <h1 className="text-4xl font-bold p-3">GeoWeather</h1>
       </div>
       <div className="map-container">
-        <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: "100%", width: "100%" }}>
+        <MapContainer center={[6.94, 79.85]} zoom={13} style={{ height: "100%", width: "100%" }}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
@@ -67,10 +132,39 @@ export default function Home() {
         <div> 
           <h2>Weather for {weather.name}</h2>
           <p>Location: {location.lat}, {location.lng}</p>
-          <p>Temperature: {weather.main.temp}°K</p>
+          <p>Temperature: {(weather.main.temp - 273.15).toFixed(2)}°C</p>
           <p>Weather: {weather.weather[0].description}</p>
+          <button onClick={addToFavorites}>Add to Favorites</button>
         </div>
       )}
+      <div>
+        <h2>Weather Prediction</h2>
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
+        <button onClick={fetchPrediction}>Get Prediction</button>
+        {prediction && (
+          <div>
+            <h3>Predicted Temperature: {prediction}°C</h3>
+          </div>
+        )}
+      </div>
+      <div>
+        <h2>Search City</h2>
+        <input
+          type="text"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          placeholder="Enter city name"
+        />
+        <button onClick={handleCitySearch}>Search</button>
+      </div>
+      
+      <Link to={`/favorites/${userId}`}>
+      <button>Go to Favorites</button>
+      </Link>
     </div>
-  )
+  );
 }

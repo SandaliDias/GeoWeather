@@ -10,6 +10,7 @@ import Main from './pages/Main';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Home from './pages/Home';
+import Favorites from './pages/Favorites';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -20,7 +21,8 @@ root.render(
         <Route path='/loggedIn' element={<App/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/signup' element={<Signup/>}/>
-        <Route path='/home' element={<Home/>}/>
+        <Route path='/home/:userId' element={<Home/>}/>
+        <Route path='/favorites/:userId' element={<Favorites/>}/>
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

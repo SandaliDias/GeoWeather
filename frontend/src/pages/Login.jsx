@@ -13,7 +13,8 @@ export default function Login() {
         try {
           const response = await axios.post('http://localhost:8010/auth/login', { username, password });
           console.log(response.data);
-          navigate('/home');
+          const userId = response.data.userId
+          navigate(`/home/${userId}`);
         } catch (error) {
           setError(error.response.data.error || 'Invalid credentials');
         }

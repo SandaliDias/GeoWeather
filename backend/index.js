@@ -26,3 +26,5 @@ const weatherRouter = require('./routes/Weather.route.js');
 app.use('/weather', weatherRouter);
 const userRouter = require('./routes/User.route.js');
 app.use("/auth", userRouter);
+const favoriteRouter = require('./routes/Favorite.route.js');
+app.use("/favorites", favoriteRouter );
