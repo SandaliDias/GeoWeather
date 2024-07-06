@@ -1,7 +1,7 @@
-module.exports = {
-  content: [
-    './src/**/*.{js,jsx,ts,tsx}', // Adjust this to your project structure
-  ],
+const withMT = require("@material-tailwind/react/utils/withMT");
+
+module.exports = withMT({
+  content: ['./src/**/*.{js,jsx,ts,tsx}'], // Adjust this to your project structure
   theme: {
     extend: {
       backgroundImage: {
@@ -10,4 +10,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+});

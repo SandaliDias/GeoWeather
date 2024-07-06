@@ -3,14 +3,12 @@ import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet';
 import { useParams, Link } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
-
-// Ensure leaflet styles are properly imported
+import { Input } from "@material-tailwind/react";
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { Button, Card, CardHeader, CardBody, CardFooter, Typography} from "@material-tailwind/react";
 
-// Fix for missing marker icons
 delete L.Icon.Default.prototype._getIconUrl;
-
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
@@ -20,17 +18,34 @@ L.Icon.Default.mergeOptions({
 function LocationMarker({ onLocationSelect }) {
   useMapEvents({
     click: (e) => {
-      console.log("Map clicked at:", e.latlng); // Debugging information
+      console.log("Map clicked at:", e.latlng);
       onLocationSelect(e.latlng);
     },
   });
   return null;
 }
 
+const weatherImages = {
+  Clear: 'https://clarksvillenow.sagacom.com/files/2020/10/shutterstock_206307496-1200x768.jpg',
+  Clouds: 'https://img.freepik.com/free-photo/sky-covered-with-clouds_1122-742.jpg',
+  Rain: 'https://static.vecteezy.com/system/resources/previews/042/146/565/non_2x/ai-generated-beautiful-rain-day-view-photo.jpg',
+  Snow: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRS21-EiJfMk0ieYafjg5AvMOOhTwtqYiov1g&s',
+  Thunderstorm: 'https://s.w-x.co/thunderstormasthma.jpg',
+  Drizzle: 'https://images.ctfassets.net/4ivszygz9914/5d6ff03c-f52a-4139-99ba-27c341ae42ce/d45b70e4bee347e4e2350ca65f915d1b/d97a3c44-dd44-4f3e-98f8-19cff669e2ad.jpeg?fm=webp',
+  Mist: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6ppLr6JgPXrVNGz2kxCw2-fefNS56Je5Ypw&s',
+  Smoke: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyQGRTTkzaIT6qT3jf7awccef6WH0e6WkDYA&s',
+  Haze: 'https://d2h8hramu3xqoh.cloudfront.net/blog/wp-content/uploads/2022/08/Hazy-Skies-scaled.webp',
+};
+
+function getImageUrl(weather) {
+  if (weather && weather.weather && weather.weather[0] && weather.weather[0].main) {
+    return weatherImages[weather.weather[0].main] || 'https://example.com/default-weather.jpg';
+  }
+  return 'https://example.com/default-weather.jpg';
+}
+
 export default function Home() {
-
   const { userId } = useParams();
-
   const [prediction, setPrediction] = useState(null);
   const [date, setDate] = useState('');
   const [location, setLocation] = useState(null);
@@ -40,13 +55,13 @@ export default function Home() {
 
   const handleLocationSelect = async (latlng) => {
     setLocation(latlng);
-    console.log("Selected location:", latlng); // Debugging information
+    console.log("Selected location:", latlng);
     try {
       const response = await axios.get(`http://localhost:8010/weather/${latlng.lat}/${latlng.lng}`);
-      console.log("Weather data:", response.data); // Debugging information
+      console.log("Weather data:", response.data);
       setWeather(response.data.data);
     } catch (error) {
-      console.error("Error fetching weather data:", error); // Debugging information
+      console.error("Error fetching weather data:", error);
     }
   };
 
@@ -60,7 +75,7 @@ export default function Home() {
           format: 'json'
         }
       });
-      console.log("City search results:", response.data); // Debugging information
+      console.log("City search results:", response.data);
       if (response.data.results && response.data.results.length > 0) {
         const { latitude, longitude } = response.data.results[0];
         handleLocationSelect({ lat: latitude, lng: longitude });
@@ -78,13 +93,11 @@ export default function Home() {
     return null;
   };
 
-  // Weather prediction
   const fetchPrediction = async () => {
     if (!date) {
       alert('Please select a date');
       return;
     }
-
     try {
       const response = await axios.get('http://127.0.0.1:8010/predict', {
         params: { date },
@@ -100,13 +113,12 @@ export default function Home() {
       alert('Please select a location and fetch the weather data first.');
       return;
     }
-
     try {
       await axios.post('http://localhost:8010/favorites/create', {
         city: weather.name,
         lat: location.lat,
         lng: location.lng,
-        userId, // Pass the user's ID
+        userId,
       });
       alert('City added to favorites');
     } catch (error) {
@@ -116,55 +128,80 @@ export default function Home() {
 
   return (
     <div className="App">
-      <div className='geoTitle'>
-        <h1 className="text-4xl font-bold p-3">GeoWeather</h1>
-      </div>
-      <div className="map-container">
-        <MapContainer center={[6.94, 79.85]} zoom={13} style={{ height: "100%", width: "100%" }}>
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <LocationMarker onLocationSelect={handleLocationSelect} />
-          {location && <SetMapCenter latlng={location} />}
-        </MapContainer>
-      </div>
-      {weather && (
-        <div> 
-          <h2>Weather for {weather.name}</h2>
-          <p>Location: {location.lat}, {location.lng}</p>
-          <p>Temperature: {(weather.main.temp - 273.15).toFixed(2)}°C</p>
-          <p>Weather: {weather.weather[0].description}</p>
-          <button onClick={addToFavorites}>Add to Favorites</button>
+      <div className='geoTitle flex flex-row justify-evenly mt-3 mb-3'>
+        <h1 className="text-4xl font-bold">GeoWeather</h1>
+
+        <div className="justify-normal">
+          <Link to={`/favorites/${userId}`}><Button className='mr-2'>Favorites</Button></Link>
+          <Link to={`/home/${userId}`}><Button color='gray' disabled='true'>Home</Button></Link>
         </div>
-      )}
-      <div>
-        <h2>Weather Prediction</h2>
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
-        <button onClick={fetchPrediction}>Get Prediction</button>
-        {prediction && (
-          <div>
-            <h3>Predicted Temperature: {prediction}°C</h3>
+        
+        <div className="relative flex w-full max-w-[24rem]">
+            <Input
+              type="text"
+              label="Enter City name"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="pr-20"
+              containerProps={{
+                className: "min-w-0",
+              }}
+            />
+            <Button
+              size="sm"
+              color={city ? "gray" : "blue-gray"}
+              disabled={!city}
+              className="!absolute right-1 top-1 rounded"
+              onClick={handleCitySearch}
+            >
+              Search
+            </Button>
+          </div>
+            <Button color='blue-gray'>Logout</Button>
+      </div>
+
+      <div className='flex flex-row justify-evenly'>
+        <div className="map-container w-2/3">
+          <MapContainer center={[6.94, 79.85]} zoom={13} style={{ height: "100%", width: "100%" }}>
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <LocationMarker onLocationSelect={handleLocationSelect} />
+            {location && <SetMapCenter latlng={location} />}
+          </MapContainer>
+        </div>
+        {weather && (
+          <div> 
+            <Card className="mt-6 w-96">
+              <CardHeader color="blue-gray" className="relative h-56">
+                <img
+                  src={getImageUrl(weather)}
+                  alt="weather-condition"
+                  className="h-full w-full"
+                />
+              </CardHeader>
+              <CardBody>
+                <Typography variant="h5" color="blue-gray" className="mb-2">
+                  Weather for {weather.name}
+                </Typography>
+                <Typography>
+                  <p>Weather: {weather.weather[0].main}</p>
+                  <p>Description: {weather.weather[0].description}</p>
+                  <p>Temperature: {(weather.main.temp - 273.15).toFixed(2)}°C</p>
+                  <p>Location: {location.lat}, {location.lng}</p>
+                </Typography>
+              </CardBody>
+              <CardFooter className="pt-0">
+                <Button onClick={addToFavorites}>Add to Favorites</Button>
+              </CardFooter>
+            </Card>
           </div>
         )}
       </div>
       <div>
-        <h2>Search City</h2>
-        <input
-          type="text"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          placeholder="Enter city name"
-        />
-        <button onClick={handleCitySearch}>Search</button>
+        <h2>Weather Prediction</h2>
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        <button onClick={fetchPrediction}>Get Prediction</button>
+        {prediction && <div><h3>Predicted Temperature: {prediction}°C</h3></div>}
       </div>
-      
-      <Link to={`/favorites/${userId}`}>
-      <button>Go to Favorites</button>
-      </Link>
     </div>
   );
 }

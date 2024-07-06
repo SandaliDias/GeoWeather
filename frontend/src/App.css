@@ -4,8 +4,7 @@
 
 .map-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 65vh;
-  margin: 0 auto; /* Center horizontally */
+  justify-content: left;
+  height:72vh;
+  margin: 0; /* Center horizontally */
 }
