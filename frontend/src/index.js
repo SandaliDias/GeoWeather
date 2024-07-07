@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Home from './pages/Home';
 import Favorites from './pages/Favorites';
+import Prediction from './pages/Prediction';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -25,6 +26,7 @@ root.render(
           <Route path='/signup' element={<Signup />} />
           <Route path='/home/:userId' element={<Home />} />
           <Route path='/favorites/:userId' element={<Favorites />} />
+          <Route path='/prediction/:userId' element={<Prediction />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

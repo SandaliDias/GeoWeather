@@ -5,6 +5,6 @@
 .map-container {
   display: flex;
   justify-content: left;
-  height:72vh;
+  height:60vh;
   margin: 0; /* Center horizontally */
 }

@@ -35,13 +35,16 @@ const weatherImages = {
   Mist: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6ppLr6JgPXrVNGz2kxCw2-fefNS56Je5Ypw&s',
   Smoke: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyQGRTTkzaIT6qT3jf7awccef6WH0e6WkDYA&s',
   Haze: 'https://d2h8hramu3xqoh.cloudfront.net/blog/wp-content/uploads/2022/08/Hazy-Skies-scaled.webp',
+  Dust: 'https://www.shutterstock.com/image-photo/climate-change-africa-dramatic-dusty-600nw-1751879375.jpg',
+  Fog: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSIAtQyvSXGAbyLN_FeUlsZAEx3nLllPFkVw&s',
+  Tornado: 'hhttps://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQXPYZGQgLSIg9GQhhCkjQDX8hciAhzUva6w&s',
 };
 
 function getImageUrl(weather) {
   if (weather && weather.weather && weather.weather[0] && weather.weather[0].main) {
     return weatherImages[weather.weather[0].main] || 'https://example.com/default-weather.jpg';
   }
-  return 'https://example.com/default-weather.jpg';
+  return 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMJ04aqNYUZTOUb37AA9kjT6SlKzZmhn8aMw&s';
 }
 
 export default function Home() {
@@ -134,6 +137,7 @@ export default function Home() {
         <div className="justify-normal">
           <Link to={`/favorites/${userId}`}><Button className='mr-2'>Favorites</Button></Link>
           <Link to={`/home/${userId}`}><Button color='gray' disabled='true'>Home</Button></Link>
+          <Link to={`/prediction/${userId}`}><Button color='gray'>South Asia Weather Prediction</Button></Link>
         </div>
         
         <div className="relative flex w-full max-w-[24rem]">
@@ -161,13 +165,27 @@ export default function Home() {
       </div>
 
       <div className='flex flex-row justify-evenly'>
-        <div className="map-container w-2/3">
+        {/* <div className="map-container w-2/3">
           <MapContainer center={[6.94, 79.85]} zoom={13} style={{ height: "100%", width: "100%" }}>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <LocationMarker onLocationSelect={handleLocationSelect} />
             {location && <SetMapCenter latlng={location} />}
           </MapContainer>
-        </div>
+        </div> */}
+        <Card className="w-2/3">
+            <CardHeader floated={false} className="">
+              <div className="map-container h-4/5">
+                <MapContainer center={[6.94, 79.85]} zoom={13} style={{ height: "100%", width: "100%" }}>
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <LocationMarker onLocationSelect={handleLocationSelect} />
+                  {location && <SetMapCenter latlng={location} />}
+                </MapContainer>
+              </div>
+            </CardHeader>
+            <CardBody className="text-center">
+              Select a Location in the map
+            </CardBody>
+        </Card>
         {weather && (
           <div> 
             <Card className="mt-6 w-96">
