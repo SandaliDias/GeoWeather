@@ -1,14 +1,43 @@
-import React from 'react'
+import React from 'react';
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Typography,
+  Input,
+  Checkbox,
+  Button,
+} from "@material-tailwind/react";
+import { Link } from 'react-router-dom';
 
 export default function Main() {
   return (
-    <div className="bg-custom-image h-screen flex items-center justify-center">
-      <div className=" bg-blue-900 opacity-90 h-1/2 w-1/4 rounded-md flex flex-col justify-center text-center">
-        <h2 className="text-white text-3xl font-bold text-center">Welcome to GeoWeather</h2>
-        <p className="mt-4 text-white">Login to enter in to the website</p>
-        <a href='/login'><button className=" bg-blue-800 p-3 pl-5 pr-5 mt-10 rounded-lg text-white">Login</button></a>
-        <a href='/signup'><button className=" bg-blue-800 p-3 pl-5 pr-5 mt-10 rounded-lg text-white">Sign Up</button></a>
-        
+    <div className="bg-black h-screen flex items-center justify-center">
+      <div className='flex flex-col'>
+        <h1 className='text-white text-4xl font-extrabold mb-8'><center>GEOWEATHER</center></h1>
+        <div>
+          <Card className="w-96">
+            <CardHeader
+              variant="gradient"
+              color="gray"
+              className="mb-4 grid h-28 place-items-center"
+            >
+              <Typography variant="h4" color="white">
+                <center>Welcome To Geoweather</center>
+              </Typography>
+            </CardHeader>
+            <CardBody className="flex flex-col gap-4 items-center">
+              <p className='mb-4'>LOGIN TO ENTER INTO THE WEBSITE</p>
+              <Link to={"/login"}>
+                <Button variant="gradient">Sign in</Button>
+              </Link>
+              <Link to={"/signup"}>
+                <Button variant="outlined">Sign up</Button>
+              </Link>
+            </CardBody>
+          </Card>
+        </div>
       </div>
     </div>
   )

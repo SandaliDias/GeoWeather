@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
 import { Input } from "@material-tailwind/react";
@@ -55,7 +55,9 @@ export default function Home() {
   const [weather, setWeather] = useState(null);
   const [city, setCity] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const navigate = useNavigate();
 
+  //Fetching weather data
   const handleLocationSelect = async (latlng) => {
     setLocation(latlng);
     console.log("Selected location:", latlng);
@@ -68,6 +70,7 @@ export default function Home() {
     }
   };
 
+  //Search function
   const handleCitySearch = async () => {
     try {
       const response = await axios.get(`https://geocoding-api.open-meteo.com/v1/search`, {
@@ -96,21 +99,7 @@ export default function Home() {
     return null;
   };
 
-  const fetchPrediction = async () => {
-    if (!date) {
-      alert('Please select a date');
-      return;
-    }
-    try {
-      const response = await axios.get('http://127.0.0.1:8010/predict', {
-        params: { date },
-      });
-      setPrediction(response.data.predicted_temp.toFixed(2));
-    } catch (error) {
-      console.error('Error fetching prediction:', error);
-    }
-  };
-
+  //Add to favorites
   const addToFavorites = async () => {
     if (!weather || !location) {
       alert('Please select a location and fetch the weather data first.');
@@ -129,14 +118,21 @@ export default function Home() {
     }
   };
 
+  //logout
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Remove token from localStorage
+    navigate('/'); // Redirect to login page
+  };
+
   return (
     <div className="App">
-      <div className='geoTitle flex flex-row justify-evenly mt-3 mb-3'>
+      {/* header */}
+      <header className='geoTitle flex flex-row justify-evenly mt-3 mb-3'>
         <h1 className="text-4xl font-bold">GeoWeather</h1>
 
         <div className="justify-normal">
           <Link to={`/favorites/${userId}`}><Button className='mr-2'>Favorites</Button></Link>
-          <Link to={`/home/${userId}`}><Button color='gray' disabled='true'>Home</Button></Link>
+          <Link to={`/home/${userId}`}><Button color='gray' disabled='true' className='mr-2'>Home</Button></Link>
           <Link to={`/prediction/${userId}`}><Button color='gray'>South Asia Weather Prediction</Button></Link>
         </div>
         
@@ -161,8 +157,8 @@ export default function Home() {
               Search
             </Button>
           </div>
-            <Button color='blue-gray'>Logout</Button>
-      </div>
+            <Button color='blue-gray' onClick={handleLogout}>Logout</Button>
+      </header>
 
       <div className='flex flex-row justify-evenly'>
         {/* <div className="map-container w-2/3">
@@ -213,12 +209,6 @@ export default function Home() {
             </Card>
           </div>
         )}
-      </div>
-      <div>
-        <h2>Weather Prediction</h2>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        <button onClick={fetchPrediction}>Get Prediction</button>
-        {prediction && <div><h3>Predicted Temperature: {prediction}°C</h3></div>}
       </div>
     </div>
   );
